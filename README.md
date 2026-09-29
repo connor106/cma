@@ -24,19 +24,19 @@ PYTHONPATH=src python -m unittest tests.test_cma
 
 ## Grok Bot
 
-The skill in `.grok/skills/cma/SKILL.md` is the command the bot should follow. In the grokbot Slack channel, a routine like this keeps it narrow:
+The skill in `.grok/skills/cma/SKILL.md` is the command the bot should follow. It runs in `#grokbot` only. A `/cma` message in `#deals` is ignored.
 
-> When a message in this channel starts with `/cma`, run `PYTHONPATH=src python -m cma` in the cma repo with the full message and post the command’s stdout in the thread. Do not add comps that the command did not return.
+> When a message in `#grokbot` starts with `/cma`, run `PYTHONPATH=src python -m cma` in the cma repo with the full message and post the command’s stdout in that thread. Do not run this for `#deals` or any other channel. Do not add comps that the command did not return.
 
 ## Slack app
 
-A Socket Mode bot answers the same command without an LLM in the middle. Create a Slack app, turn on Socket Mode, and create an app-level token with the `connections:write` scope. Subscribe to the `message.channels` event (and `message.groups` if the grokbot channel is private). Add the bot token scopes `chat:write`, `channels:history`, and `groups:history`. Invite the app to the grokbot channel.
+A Socket Mode bot answers the same command without an LLM in the middle. It replies only in `#grokbot` and ignores `#deals`. Create a Slack app, turn on Socket Mode, and create an app-level token with the `connections:write` scope. Subscribe to the `message.channels` event (and `message.groups` if `#grokbot` is private). Add the bot token scopes `chat:write`, `channels:history`, `channels:read`, `groups:history`, and `groups:read`. Invite the app to `#grokbot` only.
 
 ```bash
 pip install -e ".[slack]"
 cp .env.example .env
 # fill in SLACK_BOT_TOKEN (xoxb-) and SLACK_APP_TOKEN (xapp-)
-# optional: CMA_SLACK_CHANNEL_ID so it only answers in that channel
+# optional: CMA_SLACK_CHANNEL_ID=<id of #grokbot> if the channel name cannot be looked up
 python -m cma.slack_bot
 ```
 

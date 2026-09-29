@@ -272,15 +272,32 @@ class SlackMatchTest(unittest.TestCase):
         self.assertFalse(message_is_cma("pull comps for 428 Lawnview"))
         self.assertFalse(message_is_cma("/cmap428 Lawnview"))
 
-    def test_channel_filter(self):
+    def test_only_grokbot_channel(self):
         import os
 
         os.environ.pop("CMA_SLACK_CHANNEL_ID", None)
-        self.assertTrue(channel_allowed("C123"))
-        os.environ["CMA_SLACK_CHANNEL_ID"] = "C123"
+        os.environ.pop("CMA_SLACK_CHANNEL", None)
         try:
-            self.assertTrue(channel_allowed("C123"))
-            self.assertFalse(channel_allowed("C999"))
+            self.assertTrue(channel_allowed("C_GROK", "grokbot"))
+            self.assertTrue(channel_allowed("C_GROK", "#Grokbot"))
+            self.assertFalse(channel_allowed("C_DEALS", "deals"))
+            self.assertFalse(channel_allowed("C_DEALS", "#deals"))
+            self.assertFalse(channel_allowed("C_OTHER", "general"))
+            self.assertFalse(channel_allowed("C_OTHER", None))
+        finally:
+            os.environ.pop("CMA_SLACK_CHANNEL_ID", None)
+            os.environ.pop("CMA_SLACK_CHANNEL", None)
+
+    def test_deals_stays_blocked_when_channel_id_is_pinned(self):
+        import os
+
+        os.environ["CMA_SLACK_CHANNEL_ID"] = "C_GROK"
+        try:
+            self.assertFalse(channel_allowed("C_DEALS", "deals"))
+            self.assertFalse(channel_allowed("C_DEALS", None))
+            self.assertTrue(channel_allowed("C_GROK", "grokbot"))
+            self.assertTrue(channel_allowed("C_GROK", None))
+            self.assertFalse(channel_allowed("C_OTHER", None))
         finally:
             os.environ.pop("CMA_SLACK_CHANNEL_ID", None)
 

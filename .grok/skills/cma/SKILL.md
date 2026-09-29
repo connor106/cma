@@ -1,20 +1,25 @@
 ---
 name: cma
 description: >
-  Pull a comparative market analysis when someone types /cma plus a street
-  address, including in the grokbot Slack channel. The address can be glued
-  to the command, for example /cma428 Lawnview Ave, New Castle, Pennsylvania 16105.
-  Returns 4-5 sold and active comps within 1 mile. Use when the user runs /cma
-  or asks for comps, a CMA, or a market analysis for a specific address.
+  Pull a comparative market analysis only for a /cma address command posted in
+  the grokbot Slack channel. Never run it in the deals Slack channel, even if
+  that message starts with /cma. Example: /cma428 Lawnview Ave, New Castle,
+  Pennsylvania 16105. Returns 4-5 sold and active comps within 1 mile.
 user-invocable: true
 argument-hint: "[address]"
 ---
 
 # CMA
 
-Run this when a message is a `/cma` command. The address may be glued to the
-command (`/cma428 Lawnview Ave, New Castle, Pennsylvania 16105`), or written
-as `/cma 428 Lawnview Ave, New Castle, Pennsylvania 16105`.
+Run this only when a `/cma` command is posted in the Slack channel named
+`grokbot`.
+
+Do not run it in the `deals` channel. If `/cma` shows up in `#deals`, or in
+any channel other than `#grokbot`, stop. Do not pull comps and do not reply.
+
+The address may be glued to the command
+(`/cma428 Lawnview Ave, New Castle, Pennsylvania 16105`), or written as
+`/cma 428 Lawnview Ave, New Castle, Pennsylvania 16105`.
 
 ## Steps
 
@@ -27,7 +32,8 @@ as `/cma 428 Lawnview Ave, New Castle, Pennsylvania 16105`.
    ```
 
    Pass the user's full message, including `/cma`.
-3. Reply in the same Slack thread with the command's stdout, unchanged.
+3. Reply in the #grokbot thread with the command's stdout, unchanged. Do not
+   post the report to #deals.
 4. Do not add comps, prices, or property facts that are not in that output.
 5. If the command exits non-zero, post its stdout as the reply.
 
